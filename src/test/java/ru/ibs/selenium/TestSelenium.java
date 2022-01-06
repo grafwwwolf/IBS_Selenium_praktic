@@ -41,7 +41,7 @@ public class TestSelenium {
         WebElement forCompaniesButton = driver.findElement(By.xpath(forCompaniesXPATH));
         waitUtilElementToBeClickable(forCompaniesButton);
         forCompaniesButton.click();
-        
+
         wait.until(ExpectedConditions.attributeContains(forCompaniesButton, "Class", "nuxt-link-exact-active"));
 
         String healthXPATH = "//span[@class=\"padding\" and contains(text(), \"Здоровье\")]";
@@ -132,7 +132,8 @@ public class TestSelenium {
 
     private void checkCorrect(WebElement element) {
         WebElement errorInfo = element.findElement(By.xpath("./../../span[@class=\"input__error text--small\"]"));
-        wait.until(ExpectedConditions.visibilityOf(errorInfo));
+//        wait.until(ExpectedConditions.visibilityOf(errorInfo));
+        wait.until(ExpectedConditions.textToBePresentInElement(errorInfo, "Введите корректный адрес электронной почты"));
     }
 
     private static void sleep() {
