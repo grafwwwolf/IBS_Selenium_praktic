@@ -9,7 +9,6 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -39,34 +38,32 @@ public class TestSelenium {
 
         String forCompaniesXPATH = "//a[@class=\"text--second\" and contains(text(), \"Компаниям\")]";
         WebElement forCompaniesButton = driver.findElement(By.xpath(forCompaniesXPATH));
-        waitUtilElementToBeClickable(forCompaniesButton);
-        forCompaniesButton.click();
+        waitUtilElementToBeClickable(forCompaniesButton).click();
 
         wait.until(ExpectedConditions.attributeContains(forCompaniesButton, "Class", "nuxt-link-exact-active"));
 
         String healthXPATH = "//span[@class=\"padding\" and contains(text(), \"Здоровье\")]";
         WebElement healthButton = driver.findElement(By.xpath(healthXPATH));
-        waitUtilElementToBeClickable(healthButton);
-        healthButton.click();
+        waitUtilElementToBeClickable(healthButton).click();
 
         WebElement parentHealth = healthButton.findElement(By.xpath("./.."));
         wait.until(ExpectedConditions.attributeContains(parentHealth, "Class", "active"));
 
         String DmsXPath = "//a[contains(text(), \"Добровольное медицинское страхование\")]";
         WebElement DmsButton = driver.findElement(By.xpath(DmsXPath));
-        waitUtilElementToBeClickable(DmsButton);
-        DmsButton.click();
+        waitUtilElementToBeClickable(DmsButton).click();
 
-        sleep();
+//        sleep(); //зменить слип на wait
+        WebElement checkPageUniqueElement = driver.findElement(By.xpath("//p[@class=\"text text--basic-second word-breaking\" and contains(text(), \"ДМС сегодня\")]"));
+        wait.until(ExpectedConditions.visibilityOf(checkPageUniqueElement));
         Assert.assertEquals("страница ДМС не загрузилась", "Добровольное медицинское страхование для компаний и юридических лиц в Росгосстрахе", driver.getTitle());
 
-        WebElement h1Dms = driver.findElement(By.xpath("//h1[contains(text(), \"Добровольное медицинское страхование\")]"));
+        WebElement h1Dms = driver.findElement(By.xpath("//h1[@class=\"title word-breaking title--h2\"]"));
         Assert.assertTrue("Заголовок отсутствует/не соответствует требуемому", h1Dms.getText().equals("Добровольное медицинское страхование"));
 
         String requestXPath = "//button/span[text()=\"Отправить заявку\"]";
         WebElement requestButton = driver.findElement(By.xpath(requestXPath));
-        waitUtilElementToBeClickable(requestButton);
-        requestButton.click();
+        waitUtilElementToBeClickable(requestButton).click();
 
         String h2RecallTitleXPath = "//h2[text()=\"Оперативно перезвоним\"]";
         WebElement h2RecallTitle = driver.findElement(By.xpath(h2RecallTitleXPath));
@@ -81,9 +78,8 @@ public class TestSelenium {
         scrollToElementJs(agreementToProcessing);
 
         sleep();
-
-        Actions actions = new Actions(driver);
-        actions.moveToElement(agreementToProcessing).click(agreementToProcessing).build().perform();
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
+        javascriptExecutor.executeScript("arguments[0].click();", agreementToProcessing);
 
         String addresFieldXPath = "//div[@class=\"vue-dadata__search\"]/input";
         WebElement addresField = driver.findElement(By.xpath(addresFieldXPath));
@@ -99,11 +95,11 @@ public class TestSelenium {
         checkCorrect(email);
 
 
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @After
@@ -111,8 +107,8 @@ public class TestSelenium {
         driver.quit();
     }
 
-    private void waitUtilElementToBeClickable(WebElement element) {
-        wait.until(ExpectedConditions.elementToBeClickable(element));
+    private WebElement waitUtilElementToBeClickable(WebElement element) {
+       return wait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
     private void scrollToElementJs(WebElement element) {

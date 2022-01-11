@@ -1,5 +1,6 @@
 # ignore folders
 .idea
+target
 
 # ignore files
 *.iml
