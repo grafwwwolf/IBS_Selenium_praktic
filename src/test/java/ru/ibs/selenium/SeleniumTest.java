@@ -1,37 +1,18 @@
 package ru.ibs.selenium;
 
-import org.junit.After;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import ru.ibs.selenium.base.BaseTests;
 
-import java.util.concurrent.TimeUnit;
+import static org.hamcrest.CoreMatchers.equalTo;
 
-public class TestSelenium {
 
-    private WebDriver driver;
-    private WebDriverWait wait;
-
-    @Before
-    public void before() {
-        System.setProperty("webdriver.chrome.driver", "src/test/recources/chromedriver.exe");
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-
-        wait = new WebDriverWait(driver, 10, 1000);
-
-        String baseUrl = "https://www.rgs.ru";
-        driver.get(baseUrl);
-    }
+public class SeleniumTest extends BaseTests {
 
     @Test
     public void test() {
@@ -53,10 +34,10 @@ public class TestSelenium {
         WebElement DmsButton = driver.findElement(By.xpath(DmsXPath));
         waitUtilElementToBeClickable(DmsButton).click();
 
-//        sleep(); //зменить слип на wait
         WebElement checkPageUniqueElement = driver.findElement(By.xpath("//p[@class=\"text text--basic-second word-breaking\" and contains(text(), \"ДМС сегодня\")]"));
         wait.until(ExpectedConditions.visibilityOf(checkPageUniqueElement));
-        Assert.assertEquals("страница ДМС не загрузилась", "Добровольное медицинское страхование для компаний и юридических лиц в Росгосстрахе", driver.getTitle());
+//        Assert.assertEquals("страница ДМС не загрузилась", "Добровольное медицинское страхование для компаний и юридических лиц в Росгосстрахе", driver.getTitle());
+        MatcherAssert.assertThat("страница ДМС не загрузилась", driver.getTitle(), equalTo("Добровольное медицинское страхование для компаний и юридических лиц в Росгосстрахе"));
 
         WebElement h1Dms = driver.findElement(By.xpath("//h1[@class=\"title word-breaking title--h2\"]"));
         Assert.assertTrue("Заголовок отсутствует/не соответствует требуемому", h1Dms.getText().equals("Добровольное медицинское страхование"));
@@ -77,34 +58,26 @@ public class TestSelenium {
         WebElement agreementToProcessing = driver.findElement(By.xpath("//div[@class=\"checkbox-body form__checkbox\"]/input"));
         scrollToElementJs(agreementToProcessing);
 
-        sleep();
+
         JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
-        javascriptExecutor.executeScript("arguments[0].click();", agreementToProcessing);
+        javascriptExecutor.executeScript("arguments[0].click;", agreementToProcessing);
 
         String addresFieldXPath = "//div[@class=\"vue-dadata__search\"]/input";
         WebElement addresField = driver.findElement(By.xpath(addresFieldXPath));
         fillInputField(addresField, "г Пенза");
+        addresField.submit();
 
         String contactMeXPath = "//button[@class=\"form__button-submit btn--basic\" and contains(text(), \"Свяжитесь со мной\")]";
         WebElement contactMeButton = driver.findElement(By.xpath(contactMeXPath));
         waitUtilElementToBeClickable(contactMeButton);
-        contactMeButton.click();
+        javascriptExecutor.executeScript("arguments[0].click;", contactMeButton);
 
         // Проверка на ошибку в поле email:
         WebElement email = driver.findElement(By.xpath(String.format(fieldXPath, "userEmail")));
         checkCorrect(email);
 
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    @After
-    public void after() {
-        driver.quit();
+        sleep(5000);
     }
 
     private WebElement waitUtilElementToBeClickable(WebElement element) {
@@ -128,13 +101,12 @@ public class TestSelenium {
 
     private void checkCorrect(WebElement element) {
         WebElement errorInfo = element.findElement(By.xpath("./../../span[@class=\"input__error text--small\"]"));
-//        wait.until(ExpectedConditions.visibilityOf(errorInfo));
         wait.until(ExpectedConditions.textToBePresentInElement(errorInfo, "Введите корректный адрес электронной почты"));
     }
 
-    private static void sleep() {
+    private static void sleep(int millis) {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -105,18 +105,19 @@ public class ParametrizedSeleniumTest {
         WebElement agreementToProcessing = driver.findElement(By.xpath("//div[@class=\"checkbox-body form__checkbox\"]/input"));
         scrollToElementJs(agreementToProcessing);
 
-        sleep(2000);
         JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
         javascriptExecutor.executeScript("arguments[0].click();", agreementToProcessing);
 
         String addresFieldXPath = "//div[@class=\"vue-dadata__search\"]/input";
         WebElement addresField = driver.findElement(By.xpath(addresFieldXPath));
         fillInputField(addresField, address);
+        addresField.submit();
 
         String contactMeXPath = "//button[@class=\"form__button-submit btn--basic\" and contains(text(), \"Свяжитесь со мной\")]";
         WebElement contactMeButton = driver.findElement(By.xpath(contactMeXPath));
         waitUtilElementToBeClickable(contactMeButton);
-        contactMeButton.click();
+        scrollToElementJs(contactMeButton);
+        javascriptExecutor.executeScript("arguments[0].click;", contactMeButton);
 
         // Проверка на ошибку в поле email:
         WebElement email = driver.findElement(By.xpath(String.format(fieldXPath, "userEmail")));
